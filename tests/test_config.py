@@ -16,9 +16,14 @@ class TestACSConfig:
         assert cfg.evaporation_rate == pytest.approx(0.1)
         assert cfg.seed is None
 
-    def test_resolve_num_ants_zero_uses_paper_default(self):
+    def test_resolve_num_ants_zero_scales_with_area(self):
         cfg = ACSConfig(num_ants=0)
-        assert cfg.resolve_num_ants(8, 10) == 512
+        # 256×256 must match the paper's K=512
+        assert cfg.resolve_num_ants(256, 256) == 512
+        # 512×512 is 4× the area → 4×512 = 2048
+        assert cfg.resolve_num_ants(512, 512) == 2048
+        # Very small image is clamped to 64
+        assert cfg.resolve_num_ants(8, 10) == 64
 
     def test_resolve_num_ants_explicit(self):
         cfg = ACSConfig(num_ants=50)
