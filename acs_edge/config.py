@@ -12,7 +12,7 @@ class ACSConfig:
     Default values follow Baterina & Oppus (2010), Table 1.
 
     Attributes:
-        num_ants: Number of ants; 0 means one ant per pixel (H*W).
+        num_ants: Number of ants; 0 uses the paper default of 512.
         num_iterations: Outer loop count (N in the paper).
         steps_per_iteration: Construction steps per iteration (L in the paper).
         initial_pheromone: τ_init – initial and reset pheromone level.
@@ -52,5 +52,10 @@ class ACSConfig:
             )
 
     def resolve_num_ants(self, height: int, width: int) -> int:
-        """Return the effective ant count, substituting H*W when num_ants is 0."""
-        return height * width if self.num_ants == 0 else self.num_ants
+        """Return the effective ant count.
+
+        0 resolves to 512, matching the value used in Baterina & Oppus (2010)
+        for a 256×256 image.  Using one ant per pixel (H*W) floods every cell
+        with visits, making pheromone uniform and Otsu thresholding ineffective.
+        """
+        return 512 if self.num_ants == 0 else self.num_ants

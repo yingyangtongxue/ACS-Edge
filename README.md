@@ -16,15 +16,15 @@ A copy of the paper is available in [`docs/`](docs/Image_edge_detection_using_an
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | ![input](docs/images/pikachu_input.png) | ![q0=0.0](docs/images/results_pikachu/pikachu_q0=0.0.png) | ![q0=0.3](docs/images/results_pikachu/pikachu_q0=0.3.png) | ![q0=0.5](docs/images/results_pikachu/pikachu_q0=0.5.png) | ![q0=0.7](docs/images/results_pikachu/pikachu_q0=0.7.png) | ![q0=1.0](docs/images/results_pikachu/pikachu_q0=1.0.png) |
 
-*pikachu.png (50 × 43 px) · 200 ants · 10 iterations · 40 steps · seed 42.*
+*pikachu.png (50 × 43 px) · 100 ants · 10 iterations · 40 steps · seed 42.*
 
 | Input | q₀ = 0.0 | q₀ = 0.3 | q₀ = 0.5 | q₀ = 0.7 | q₀ = 1.0 |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | ![input](docs/images/lena_input.png) | ![q0=0.0](docs/images/results_lena/lena_q0=0.0.png) | ![q0=0.3](docs/images/results_lena/lena_q0=0.3.png) | ![q0=0.5](docs/images/results_lena/lena_q0=0.5.png) | ![q0=0.7](docs/images/results_lena/lena_q0=0.7.png) | ![q0=1.0](docs/images/results_lena/lena_q0=1.0.png) |
 
-*lena.png (512 × 512 px) · 262 144 ants (one per pixel) · 10 iterations · 40 steps · seed 42.*
+*lena.png (512 × 512 px) · 512 ants · 10 iterations · 40 steps · seed 42.*
 
-Low q₀ = pure exploration (noisy, textured edges); high q₀ = pure exploitation (cleaner but may miss fine features).
+Low q₀ = pure exploration (noisy, diffuse edges); high q₀ = pure exploitation (sharper, concentrated paths).
 
 ---
 
@@ -83,7 +83,7 @@ After *N* iterations the final pheromone matrix is thresholded with **Otsu's met
 
 | Parameter | Symbol | Default |
 |---|---|---|
-| Number of ants | K | H × W (one per pixel) |
+| Number of ants | K | 512 (for a 256 × 256 image) |
 | Iterations | N | 10 |
 | Construction steps | L | 40 |
 | Initial pheromone | τ_init | 0.1 |
@@ -188,7 +188,7 @@ positional arguments:
   image              Path to the input grayscale image
 
 options:
-  --ants K           Number of ants; 0 = one per pixel (default: 0)
+  --ants K           Number of ants (0 = 512, the value used in the paper)
   --iterations N     Outer ACS iterations (default: 10)
   --steps L          Construction steps per iteration (default: 40)
   --q0 Q [Q ...]     q0 values to evaluate (default: 0.0 … 1.0)
@@ -234,12 +234,13 @@ All runs use `--seed 42`, `q0=0.5`, averaged over 3 runs.
 | Image | Size | Ants | Iters | Steps | [Original (unvectorised)][legacy] | CPU (NumPy) | GPU (CuPy) | Speedup vs CPU |
 |---|---|---|---|---|---|---|---|---|
 | pikachu | 50 × 43 | 100 | 5 | 20 | ~3–10 min | **0.02 s** | ~0.19 s ¹ | — ² |
-| lena | 512 × 512 | 262 144 | 10 | 40 | > 9 h | **63 s** | **7.5 s** | **8.3×** |
+| lena | 512 × 512 | 512 | 10 | 40 | > 9 h ³ | **63 s** | **7.5 s** | **8.3×** |
 
 [legacy]: https://github.com/yingyangtongxue/ACS-Edge/blob/89811a3/image.py
 
 > ¹ After CUDA warm-up; first call incurs ~10 s of CuPy initialisation overhead.  
-> ² For small images the GPU memory-transfer and kernel-launch overhead exceeds the compute cost; CPU is preferred below ~128 × 128 px.
+> ² For small images the GPU memory-transfer and kernel-launch overhead exceeds the compute cost; CPU is preferred below ~128 × 128 px.  
+> ³ Original code used one ant per pixel (H × W = 262 144 for 512 × 512), flooding every cell with pheromone and making Otsu thresholding ineffective. The paper uses K = 512.
 
 ---
 
