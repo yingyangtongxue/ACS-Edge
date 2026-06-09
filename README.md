@@ -198,14 +198,30 @@ pytest tests/ -v
 
 ## Performance
 
-The vectorised implementation replaces the original O(H · W · K · L) global pheromone update with an O(K · L + H · W) scatter-add, providing significant speedups:
+### Complexity reduction
 
-| Image | Size | Original | This implementation |
-|---|---|---|---|
-| pikachu | 50 × 43 | ~3–10 min | < 1 s (CPU) |
-| lena | 256 × 256 | > 9 h | ~30 s (CPU) / < 5 s (GPU) |
+The original implementation iterated over every pixel for every ant on every step to update pheromones — O(H · W · K · L) per iteration. This implementation replaces that with a vectorised scatter-add, O(K · L + H · W), eliminating the inner pixel loops entirely.
 
-*GPU timings measured on NVIDIA RTX 3060.*
+| Operation | Original complexity | This implementation |
+|---|---|---|
+| Global pheromone update | O(H · W · K · L) | O(H · W) |
+| Ant movement (all K ants) | O(K · 8) sequential | O(K · 8) vectorised |
+| Heuristic η matrix | Recomputed per call | Precomputed once |
+
+### Benchmark results
+
+Measured on: **AMD Ryzen 7 4800H** (8 cores / 16 threads) · **23.4 GB RAM** ·
+**NVIDIA GeForce GTX 1650 Ti** (4 GB VRAM, CUDA 12.9) · Windows 11.
+
+All runs use `--seed 42`, `q0=0.5`, averaged over 3 runs.
+
+| Image | Size | Ants | Iters | Steps | Original (unvectorised) | CPU (NumPy) | GPU (CuPy) | Speedup vs CPU |
+|---|---|---|---|---|---|---|---|---|
+| pikachu | 50 × 43 | 100 | 5 | 20 | ~3–10 min | **0.02 s** | ~0.19 s ¹ | — ² |
+| lena | 512 × 512 | 262 144 | 10 | 40 | > 9 h | **63 s** | **7.5 s** | **8.3×** |
+
+> ¹ After CUDA warm-up; first call incurs ~10 s of CuPy initialisation overhead.  
+> ² For small images the GPU memory-transfer and kernel-launch overhead exceeds the compute cost; CPU is preferred below ~128 × 128 px.
 
 ---
 
