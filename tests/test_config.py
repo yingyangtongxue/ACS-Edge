@@ -16,9 +16,9 @@ class TestACSConfig:
         assert cfg.evaporation_rate == pytest.approx(0.1)
         assert cfg.seed is None
 
-    def test_resolve_num_ants_zero_uses_hw(self):
+    def test_resolve_num_ants_zero_uses_paper_default(self):
         cfg = ACSConfig(num_ants=0)
-        assert cfg.resolve_num_ants(8, 10) == 80
+        assert cfg.resolve_num_ants(8, 10) == 512
 
     def test_resolve_num_ants_explicit(self):
         cfg = ACSConfig(num_ants=50)

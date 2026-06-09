@@ -40,7 +40,7 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=0,
         metavar="K",
-        help="Number of ants (0 = one per pixel, as in the paper).",
+        help="Number of ants (0 = 512, the value used in the paper).",
     )
     parser.add_argument(
         "--iterations",
