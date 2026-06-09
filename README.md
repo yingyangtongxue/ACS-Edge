@@ -16,8 +16,15 @@ A copy of the paper is available in [`docs/`](docs/Image_edge_detection_using_an
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | ![input](docs/images/pikachu_input.png) | ![q0=0.0](docs/images/results_pikachu/pikachu_q0=0.0.png) | ![q0=0.3](docs/images/results_pikachu/pikachu_q0=0.3.png) | ![q0=0.5](docs/images/results_pikachu/pikachu_q0=0.5.png) | ![q0=0.7](docs/images/results_pikachu/pikachu_q0=0.7.png) | ![q0=1.0](docs/images/results_pikachu/pikachu_q0=1.0.png) |
 
-*pikachu.png (50 × 43 px) · 200 ants · 10 iterations · 40 steps · seed 42.  
-Low q₀ = pure exploration (noisy edges); high q₀ = pure exploitation (clean but may miss features).*
+*pikachu.png (50 × 43 px) · 200 ants · 10 iterations · 40 steps · seed 42.*
+
+| Input | q₀ = 0.0 | q₀ = 0.3 | q₀ = 0.5 | q₀ = 0.7 | q₀ = 1.0 |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![input](docs/images/lena_input.png) | ![q0=0.0](docs/images/results_lena/lena_q0=0.0.png) | ![q0=0.3](docs/images/results_lena/lena_q0=0.3.png) | ![q0=0.5](docs/images/results_lena/lena_q0=0.5.png) | ![q0=0.7](docs/images/results_lena/lena_q0=0.7.png) | ![q0=1.0](docs/images/results_lena/lena_q0=1.0.png) |
+
+*lena.png (512 × 512 px) · 262 144 ants (one per pixel) · 10 iterations · 40 steps · seed 42.*
+
+Low q₀ = pure exploration (noisy, textured edges); high q₀ = pure exploitation (cleaner but may miss fine features).
 
 ---
 
