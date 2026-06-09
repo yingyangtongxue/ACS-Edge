@@ -154,7 +154,7 @@ def main(argv: list[str] | None = None) -> int:
     # --- Output directory ---
     if args.output_dir is None:
         timestamp = datetime.now().strftime("%Y-%m-%dT%Hh%Mmin%Sseg")
-        output_dir = Path("Output") / timestamp
+        output_dir = Path("results") / timestamp
     else:
         output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)

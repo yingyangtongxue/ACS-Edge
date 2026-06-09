@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "acs-edge"
 version = "0.1.0"
-description = "ACS image edge detection – Baterina & Oppus (2010)"
+description = "GPU-accelerated ACS image edge detection – Baterina & Oppus (2010)"
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.26",
