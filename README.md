@@ -26,6 +26,28 @@ A copy of the paper is available in [`docs/`](docs/Image_edge_detection_using_an
 
 Low q₀ = pure exploration (noisy, diffuse edges); high q₀ = pure exploitation (sharper, concentrated paths).
 
+### Tuned parameters — gridsearch
+
+Swept **K × N × L × q₀** (seed = 42) with [`gridsearch.py`](gridsearch.py),
+scored by lowest edge density (fewest false positives).
+48 combinations for lena, 24 for pikachu.
+
+| Image | K | N | L | q₀ | Edge density |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| pikachu (50 × 43) | 64 | 10 | 40 | **0.7** | 15.6 % |
+| lena (512 × 512) | 1 024 | 10 | 40 | **0.7** | 2.1 % |
+
+Three versions of each image — same input, different K and q₀:
+
+| | Input | Legacy | New default | Tuned |
+|:---:|:---:|:---:|:---:|:---:|
+| **pikachu** | ![](docs/images/pikachu_input.png) | ![](docs/images/pikachu_old_default.png) | ![](docs/images/pikachu_new_default.png) | ![](docs/images/pikachu_tuned.png) |
+| **lena** | ![](docs/images/lena_input.png) | ![](docs/images/lena_old_default.png) | ![](docs/images/lena_new_default.png) | ![](docs/images/lena_tuned.png) |
+
+*pikachu — Legacy: K = 100, q₀ = 0.5 · New default: K = 64 (auto-scaled), q₀ = 0.5 · Tuned: K = 64, q₀ = 0.7.*
+
+*lena — Legacy: K = 512 (fixed), q₀ = 0.5 · New default: K = 2 048 (auto-scaled), q₀ = 0.5 · Tuned: K = 1 024, q₀ = 0.7.*
+
 ---
 
 ## Academic Context
@@ -188,7 +210,7 @@ positional arguments:
   image              Path to the input grayscale image
 
 options:
-  --ants K           Number of ants (0 = 512, the value used in the paper)
+  --ants K           Number of ants (0 = auto-scaled from image area, min 64)
   --iterations N     Outer ACS iterations (default: 10)
   --steps L          Construction steps per iteration (default: 40)
   --q0 Q [Q ...]     q0 values to evaluate (default: 0.0 … 1.0)
@@ -229,18 +251,20 @@ The original implementation iterated over every pixel for every ant on every ste
 Measured on: **AMD Ryzen 7 4800H** (8 cores / 16 threads) · **23.4 GB RAM** ·
 **NVIDIA GeForce GTX 1650 Ti** (4 GB VRAM, CUDA 12.9) · Windows 11.
 
-All runs use `--seed 42`, `q0=0.5`, averaged over 3 runs.
+Timing: **`detect()` call only**, warm cache, 5 runs averaged, `seed = 42`,
+`q0 = 0.7`, `N = 10`, `L = 40`.
 
-| Image | Size | Ants | Iters | Steps | [Original (unvectorised)][legacy] | CPU (NumPy) | GPU (CuPy) | Speedup vs CPU |
-|---|---|---|---|---|---|---|---|---|
-| pikachu | 50 × 43 | 100 | 5 | 20 | ~3–10 min | **0.02 s** | ~0.19 s ¹ | — ² |
-| lena | 512 × 512 | 512 | 10 | 40 | > 9 h ³ | **63 s** | **7.5 s** | **8.3×** |
+| Image | Size | K | [Original (unvectorised)][legacy] | CPU (NumPy) | GPU (CuPy) | vs original |
+|---|---|---|---|---|---|---|
+| pikachu | 50 × 43 | 64 | ~3–10 min ¹ | **59 ms** | ~770 ms ² | ~3 000–10 000× |
+| lena | 512 × 512 | 1 024 | — | **323 ms** | ~743 ms ² | — |
+| lena | 512 × 512 | 2 048 | >9 h ³ | **628 ms** | ~748 ms ² | **>51 000×** |
 
 [legacy]: https://github.com/yingyangtongxue/ACS-Edge/blob/89811a3/image.py
 
-> ¹ After CUDA warm-up; first call incurs ~10 s of CuPy initialisation overhead.  
-> ² For small images the GPU memory-transfer and kernel-launch overhead exceeds the compute cost; CPU is preferred below ~128 × 128 px.  
-> ³ Original code used one ant per pixel (H × W = 262 144 for 512 × 512), flooding every cell with pheromone and making Otsu thresholding ineffective. The paper uses K = 512.
+> ¹ Pikachu original code estimate from Python loop rate at K = H × W = 2 150 ants.  
+> ² GPU kernel-launch and memory-transfer overhead exceeds compute cost for these sizes on a GTX 1650 Ti; CPU is preferred.  
+> ³ Original code used K = H × W = 262 144 ants for 512 × 512 (one ant per pixel), flooding pheromone uniformly and making Otsu thresholding ineffective. Auto-scaling now gives K = 2 048 for 512 × 512 — **>51 000×** faster.
 
 ---
 

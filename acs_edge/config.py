@@ -54,8 +54,14 @@ class ACSConfig:
     def resolve_num_ants(self, height: int, width: int) -> int:
         """Return the effective ant count.
 
-        0 resolves to 512, matching the value used in Baterina & Oppus (2010)
-        for a 256×256 image.  Using one ant per pixel (H*W) floods every cell
-        with visits, making pheromone uniform and Otsu thresholding ineffective.
+        When num_ants=0, scales K proportionally to the image area relative to
+        the 256×256 reference in Baterina & Oppus (2010), where K=512.
+
+            K = max(64, round(512 × H × W / (256 × 256)))
+
+        Examples: 256×256 → 512, 512×512 → 2048, 50×43 → 64 (floor).
         """
-        return 512 if self.num_ants == 0 else self.num_ants
+        if self.num_ants != 0:
+            return self.num_ants
+        scaled = round(512 * height * width / (256 * 256))
+        return max(64, scaled)
