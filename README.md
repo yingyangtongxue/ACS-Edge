@@ -10,6 +10,15 @@ GPU-accelerated image edge detection via **Ant Colony System (ACS)**, based on t
 
 A copy of the paper is available in [`docs/`](docs/Image_edge_detection_using_ant_colony_optimization.pdf).
 
+### Effect of the q₀ parameter on edge detection
+
+| Input | q₀ = 0.0 | q₀ = 0.3 | q₀ = 0.5 | q₀ = 0.7 | q₀ = 1.0 |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![input](docs/images/pikachu_input.png) | ![q0=0.0](docs/images/results_pikachu/pikachu_q0=0.0.png) | ![q0=0.3](docs/images/results_pikachu/pikachu_q0=0.3.png) | ![q0=0.5](docs/images/results_pikachu/pikachu_q0=0.5.png) | ![q0=0.7](docs/images/results_pikachu/pikachu_q0=0.7.png) | ![q0=1.0](docs/images/results_pikachu/pikachu_q0=1.0.png) |
+
+*pikachu.png (50 × 43 px) · 200 ants · 10 iterations · 40 steps · seed 42.  
+Low q₀ = pure exploration (noisy edges); high q₀ = pure exploitation (clean but may miss features).*
+
 ---
 
 ## Academic Context
@@ -215,10 +224,12 @@ Measured on: **AMD Ryzen 7 4800H** (8 cores / 16 threads) · **23.4 GB RAM** ·
 
 All runs use `--seed 42`, `q0=0.5`, averaged over 3 runs.
 
-| Image | Size | Ants | Iters | Steps | Original (unvectorised) | CPU (NumPy) | GPU (CuPy) | Speedup vs CPU |
+| Image | Size | Ants | Iters | Steps | [Original (unvectorised)][legacy] | CPU (NumPy) | GPU (CuPy) | Speedup vs CPU |
 |---|---|---|---|---|---|---|---|---|
 | pikachu | 50 × 43 | 100 | 5 | 20 | ~3–10 min | **0.02 s** | ~0.19 s ¹ | — ² |
 | lena | 512 × 512 | 262 144 | 10 | 40 | > 9 h | **63 s** | **7.5 s** | **8.3×** |
+
+[legacy]: https://github.com/yingyangtongxue/ACS-Edge/blob/89811a3/image.py
 
 > ¹ After CUDA warm-up; first call incurs ~10 s of CuPy initialisation overhead.  
 > ² For small images the GPU memory-transfer and kernel-launch overhead exceeds the compute cost; CPU is preferred below ~128 × 128 px.
