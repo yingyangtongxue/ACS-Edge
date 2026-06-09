@@ -1,3 +1,11 @@
+# Generated results – keep the folder, ignore its contents
+Output/
+results/*
+!results/.gitkeep
+
+# Ruff / pytest caches
+.ruff_cache/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
